@@ -135,19 +135,6 @@ ros2 topic pub /artis_gripper/joint_command_ticks sensor_msgs/msg/JointState \
 "{name: ['j0_base', 'j4_center_4bar'], position: [1712.0, 1330.0]}" --once
 ```
 
-## Four-bar kinematics helper
-
-`artis_gripper.kinematics.solve_fourbar()` implements the planar closure equation used in the ARTiS mechanism description:
-
-```python
-from math import radians
-from artis_gripper import FourBarGeometry, solve_fourbar
-
-geom = FourBarGeometry(l0=30, l1=25, l2=40, l3=35, theta0=0.0, r_tip=10, theta_tip=0.2)
-result = solve_fourbar(radians(60), geom)
-print(result)  # theta2, theta3, fingertip (x, y)
-```
-
 ## Important safety notes
 
 - Test each motor independently before applying full presets.
