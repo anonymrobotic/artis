@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "artis-gripper"
+version = "0.1.0"
+description = "Python API and ROS 2 node for the ARTiS adaptive robotic gripper"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "dynamixel-sdk>=3.7.31",
+  "pyserial>=3.5",
+  "PyYAML>=6.0",
+]
+license = {text = "MIT"}
+authors = [{name = "ARTiS developers"}]
+
+[project.scripts]
+artis-cli = "artis_gripper.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["artis_gripper*"]
