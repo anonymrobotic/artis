@@ -1,40 +1,33 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 from .artis_gripper import ArtisGripper
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="ARTiS gripper command-line controller")
-    parser.add_argument("--config", default="configs/artis_default.yaml", help="Path to YAML config")
+def main():
+    parser = argparse.ArgumentParser(description="ARTiS gripper keyboard CLI")
+    parser.add_argument("--config", default="configs/artis_default.yaml")
     args = parser.parse_args()
 
-    cfg = Path(args.config)
-    print(f"Loading ARTiS config: {cfg}")
-    print("Commands: preset name/key, on, off, read, torque_on, torque_off, exit")
-
-    with ArtisGripper(cfg) as gripper:
+    with ArtisGripper(args.config) as g:
+        print("Commands: preset name, jam_on, jam_off, read, torque_off, torque_on, quit")
         while True:
-            cmd = input("ARTiS> ").strip()
-            if cmd in {"exit", "quit", "e"}:
+            cmd = input("artis> ").strip()
+            if cmd in {"q", "quit", "exit"}:
                 break
-            if cmd in {"on", "jam_on", "q"}:
-                gripper.jam_on()
-                print("Jamming palm ON")
-            elif cmd in {"off", "jam_off", "w"}:
-                gripper.jam_off()
-                print("Jamming palm OFF")
+            if cmd == "jam_on":
+                g.jam_on()
+            elif cmd == "jam_off":
+                g.jam_off()
             elif cmd == "read":
-                print(gripper.read_joint_ticks())
-            elif cmd == "torque_on":
-                gripper.enable_torque(True)
+                print(g.read_joint_ticks())
             elif cmd == "torque_off":
-                gripper.enable_torque(False)
-            elif cmd:
-                gripper.apply_preset(cmd)
-                print(f"Applied preset: {cmd}")
+                g.enable_torque(False)
+            elif cmd == "torque_on":
+                g.enable_torque(True)
+            else:
+                g.apply_preset(cmd)
 
 
 if __name__ == "__main__":
