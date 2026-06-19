@@ -1,15 +1,27 @@
 # ARTiS motor mapping
 
-This file records the motor numbering convention used by the mechanical design and the Dynamixel IDs used by the Python and ROS 2 API.
+Current mapping from the design figure:
 
-| Design motor | Kinematic joint | Programming ID | Function |
-|---:|---|---:|---|
-| Motor 1 | J0 | 8 | base rotation about the gripper axis; symmetrically rotates the two movable finger branches |
-| Motor 2 | J1 | 1 | center finger-axis orientation |
-| Motor 4 | J2 | 2 | left finger-axis orientation |
-| Motor 6 | J3 | 3 | right finger-axis orientation |
-| Motor 3 | J4 | 4 | center four-bar finger mechanism |
-| Motor 5 | J5 | 5 | left four-bar finger mechanism |
-| Motor 7 | J6 | 6 | right four-bar finger mechanism |
+| Design motor | Joint | Meaning | Dynamixel ID |
+|---:|---|---|---:|
+| Motor 1 | `J0` | base rotation about gripper axis | 8 |
+| Motor 2 | `J1` | center finger-axis orientation | 1 |
+| Motor 4 | `J2` | left finger-axis orientation | 2 |
+| Motor 6 | `J3` | right finger-axis orientation | 3 |
+| Motor 3 | `J4` | center four-bar mechanism | 4 |
+| Motor 5 | `J5` | left four-bar mechanism | 5 |
+| Motor 7 | `J6` | right four-bar mechanism | 6 |
 
-In code, command joints by semantic names such as `j0_base` or `j4_center_4bar`; do not hard-code raw IDs in experiments unless necessary.
+The legacy teaching scripts used a different experimental convention:
+
+| Semantic joint | Legacy ID |
+|---|---:|
+| `J0` | 8 |
+| `J1` | 2 |
+| `J2` | 4 |
+| `J3` | 6 |
+| `J4` | 3 |
+| `J5` | 5 |
+| `J6` | 7 |
+
+Use `configs/artis_default.yaml` for the current design mapping and `configs/artis_legacy_teaching.yaml` only for reproducing old experiments.
