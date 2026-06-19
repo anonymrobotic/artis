@@ -1,101 +1,78 @@
-from __future__ import annotations
-
-from pathlib import Path
-
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from std_msgs.msg import Bool, String
+from std_msgs.msg import String
 from std_srvs.srv import SetBool, Trigger
 
-from artis_gripper import ArtisGripper, load_config
+from artis_gripper import ArtisGripper
 
 
 class ArtisNode(Node):
     def __init__(self):
         super().__init__("artis_gripper")
         self.declare_parameter("config", "configs/artis_default.yaml")
-        self.declare_parameter("publish_rate_hz", 20.0)
-        self.declare_parameter("connect_on_start", True)
+        config = self.get_parameter("config").get_parameter_value().string_value
+        self.gripper = ArtisGripper(config)
+        self.gripper.connect()
 
-        config_path = Path(self.get_parameter("config").value)
-        self.config = load_config(config_path)
-        self.joint_names = list(self.config.motors.keys())
-        self.gripper = ArtisGripper(self.config)
+        self.create_subscription(String, "artis_gripper/preset", self.on_preset, 10)
+        self.create_subscription(JointState, "artis_gripper/joint_command_ticks", self.on_joint_ticks, 10)
+        self.create_service(SetBool, "artis_gripper/set_jamming", self.on_set_jamming)
+        self.create_service(Trigger, "artis_gripper/read_state", self.on_read_state)
+        self.pub_state = self.create_publisher(JointState, "artis_gripper/joint_states", 10)
+        self.timer = self.create_timer(0.1, self.publish_state)
+        self.get_logger().info("ARTiS gripper node started")
 
-        if bool(self.get_parameter("connect_on_start").value):
-            self.gripper.connect(enable_torque=True)
-            self.get_logger().info(f"Connected to ARTiS using config: {config_path}")
-
-        self.joint_pub = self.create_publisher(JointState, "~/joint_states", 10)
-        self.create_subscription(JointState, "~/joint_command_ticks", self.on_joint_command, 10)
-        self.create_subscription(String, "~/preset", self.on_preset, 10)
-        self.create_subscription(Bool, "~/jamming", self.on_jamming, 10)
-
-        self.create_service(SetBool, "~/set_jamming", self.set_jamming_srv)
-        self.create_service(Trigger, "~/torque_enable", self.torque_enable_srv)
-        self.create_service(Trigger, "~/torque_disable", self.torque_disable_srv)
-
-        period = 1.0 / float(self.get_parameter("publish_rate_hz").value)
-        self.timer = self.create_timer(period, self.publish_state)
-
-    def on_joint_command(self, msg: JointState) -> None:
-        positions = {name: int(pos) for name, pos in zip(msg.name, msg.position) if name in self.config.motors}
-        if positions:
-            self.gripper.move_ticks(positions)
-
-    def on_preset(self, msg: String) -> None:
+    def on_preset(self, msg):
         try:
-            self.gripper.apply_preset(msg.data.strip())
+            self.gripper.apply_preset(msg.data)
         except Exception as exc:
             self.get_logger().error(str(exc))
 
-    def on_jamming(self, msg: Bool) -> None:
-        self.gripper.set_jamming(bool(msg.data))
-
-    def set_jamming_srv(self, request: SetBool.Request, response: SetBool.Response) -> SetBool.Response:
+    def on_joint_ticks(self, msg):
         try:
-            self.gripper.set_jamming(bool(request.data))
+            targets = {name: int(pos) for name, pos in zip(msg.name, msg.position)}
+            self.gripper.move_to_ticks(targets)
+        except Exception as exc:
+            self.get_logger().error(str(exc))
+
+    def on_set_jamming(self, request, response):
+        try:
+            self.gripper.jam_on() if request.data else self.gripper.jam_off()
             response.success = True
-            response.message = "Jamming palm ON" if request.data else "Jamming palm OFF"
+            response.message = "JAM_ON" if request.data else "JAM_OFF"
         except Exception as exc:
             response.success = False
             response.message = str(exc)
         return response
 
-    def torque_enable_srv(self, request: Trigger.Request, response: Trigger.Response) -> Trigger.Response:
-        self.gripper.enable_torque(True)
-        response.success = True
-        response.message = "Torque enabled"
-        return response
-
-    def torque_disable_srv(self, request: Trigger.Request, response: Trigger.Response) -> Trigger.Response:
-        self.gripper.enable_torque(False)
-        response.success = True
-        response.message = "Torque disabled"
-        return response
-
-    def publish_state(self) -> None:
+    def on_read_state(self, request, response):
         try:
-            ticks = self.gripper.read_joint_ticks(self.joint_names)
+            response.success = True
+            response.message = str(self.gripper.read_joint_ticks())
         except Exception as exc:
-            self.get_logger().warn(f"Could not read joint state: {exc}")
-            return
-        msg = JointState()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.name = self.joint_names
-        msg.position = [float(ticks[name]) for name in self.joint_names]
-        self.joint_pub.publish(msg)
+            response.success = False
+            response.message = str(exc)
+        return response
 
-    def destroy_node(self) -> bool:
+    def publish_state(self):
         try:
-            self.gripper.close(disable_torque=True)
-        finally:
-            return super().destroy_node()
+            ticks = self.gripper.read_joint_ticks()
+            msg = JointState()
+            msg.header.stamp = self.get_clock().now().to_msg()
+            msg.name = list(ticks.keys())
+            msg.position = [float(v) for v in ticks.values()]
+            self.pub_state.publish(msg)
+        except Exception as exc:
+            self.get_logger().warn(str(exc))
+
+    def destroy_node(self):
+        self.gripper.shutdown()
+        super().destroy_node()
 
 
-def main(args=None):
-    rclpy.init(args=args)
+def main():
+    rclpy.init()
     node = ArtisNode()
     try:
         rclpy.spin(node)
