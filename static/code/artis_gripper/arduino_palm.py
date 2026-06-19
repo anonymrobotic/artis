@@ -7,46 +7,47 @@ import serial
 
 
 class ArduinoPalm:
-    """Serial interface for the ARTiS jamming palm relay.
+    """Serial protocol for the ARTiS jamming-palm relay and optional teaching buttons."""
 
-    Protocol expected by arduino/Arduino_communication.ino:
-      '1' -> jamming ON / vacuum relay energized
-      '0' -> jamming OFF / relay released
-      '?' -> report state
-    """
-
-    def __init__(self, port: Optional[str], baudrate: int = 9600, timeout_s: float = 1.0):
+    def __init__(self, port: str, baudrate: int = 9600, timeout: float = 0.1, on_command: str = "1", off_command: str = "0"):
         self.port = port
-        self.baudrate = baudrate
-        self.timeout_s = timeout_s
+        self.baudrate = int(baudrate)
+        self.timeout = float(timeout)
+        self.on_command = str(on_command)
+        self.off_command = str(off_command)
         self.serial: Optional[serial.Serial] = None
+        self._jammed = False
 
     def open(self) -> None:
-        if not self.port:
-            return
-        self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout_s)
+        self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
         time.sleep(2.0)
 
     def close(self) -> None:
-        if self.serial:
+        if self.serial is not None:
             self.serial.close()
             self.serial = None
 
-    def __enter__(self) -> "ArduinoPalm":
-        self.open()
-        return self
-
-    def __exit__(self, exc_type, exc, tb) -> None:
-        self.close()
-
-    def set_jamming(self, enabled: bool) -> None:
+    def _write(self, command: str) -> None:
         if self.serial is None:
-            raise RuntimeError("Arduino palm serial port is not open. Set arduino_port in the config.")
-        self.serial.write(b"1" if enabled else b"0")
+            raise RuntimeError("Arduino serial port is not open")
+        self.serial.write(str(command).encode("ascii"))
         self.serial.flush()
 
     def jam_on(self) -> None:
-        self.set_jamming(True)
+        self._write(self.on_command)
+        self._jammed = True
 
     def jam_off(self) -> None:
-        self.set_jamming(False)
+        self._write(self.off_command)
+        self._jammed = False
+
+    def read_jamming_state(self) -> bool:
+        return self._jammed
+
+    def read_button_line(self) -> Optional[str]:
+        if self.serial is None:
+            return None
+        if self.serial.in_waiting <= 0:
+            return None
+        line = self.serial.readline().decode("utf-8", errors="ignore").strip()
+        return line or None
