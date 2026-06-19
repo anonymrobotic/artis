@@ -1,285 +1,128 @@
-# ARTiS default configuration
-#
-# Motor number in the mechanical design -> Dynamixel ID used in software:
-#   Motor 1, J0, base rotation about gripper axis      -> ID 8
-#   Motor 2, J1, center finger-axis orientation        -> ID 1
-#   Motor 4, J2, left finger-axis orientation          -> ID 2
-#   Motor 6, J3, right finger-axis orientation         -> ID 3
-#   Motor 3, J4, center four-bar mechanism             -> ID 4
-#   Motor 5, J5, left four-bar mechanism               -> ID 5
-#   Motor 7, J6, right four-bar mechanism              -> ID 6
-#
-# The preset values below are expressed by joint names, not raw IDs.
-# This keeps the API readable and avoids confusing design motor numbers with Dynamixel IDs.
-
+# ARTiS current motor mapping from design figure.
 serial:
-  dynamixel_port: /dev/ttyUSB1
+  dynamixel_port: /dev/ttyUSB0
   dynamixel_baudrate: 57600
-  dynamixel_protocol: 1.0
+  protocol_version: 1.0
   arduino_port: /dev/ttyACM0
   arduino_baudrate: 9600
-  arduino_timeout_s: 1.0
-motors:
-  j0_base:
+
+palm:
+  # New firmware uses 1 = jam ON, 0 = jam OFF.
+  # For the legacy teaching-button firmware, use configs/artis_legacy_teaching.yaml.
+  on_command: "1"
+  off_command: "0"
+
+default_speed: 70
+
+joints:
+  J0:
+    name: base_rotation_about_gripper_axis
+    design_motor: Motor 1
     id: 8
-    min_tick: 0
-    max_tick: 4095
-    zero_tick: 1712
-    default_speed: 80
-  j1_center_axis:
+    center_ticks: 1712
+    min_ticks: 0
+    max_ticks: 4095
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J1:
+    name: center_finger_axis_orientation
+    design_motor: Motor 2
     id: 1
-    min_tick: 0
-    max_tick: 4095
-    zero_tick: 2052
-    default_speed: 80
-  j4_center_4bar:
-    id: 4
-    min_tick: 0
-    max_tick: 4095
-    zero_tick: 3630
-    default_speed: 60
-  j2_left_axis:
+    center_ticks: 2052
+    min_ticks: 0
+    max_ticks: 4095
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J2:
+    name: left_finger_axis_orientation
+    design_motor: Motor 4
     id: 2
-    min_tick: 0
-    max_tick: 4095
-    zero_tick: 2052
-    default_speed: 80
-  j5_left_4bar:
-    id: 5
-    min_tick: 0
-    max_tick: 4095
-    zero_tick: 3630
-    default_speed: 60
-  j3_right_axis:
+    center_ticks: 2052
+    min_ticks: 0
+    max_ticks: 4095
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J3:
+    name: right_finger_axis_orientation
+    design_motor: Motor 6
     id: 3
-    min_tick: 0
-    max_tick: 4095
-    zero_tick: 2052
-    default_speed: 80
-  j6_right_4bar:
+    center_ticks: 2052
+    min_ticks: 0
+    max_ticks: 4095
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J4:
+    name: center_four_bar_mechanism
+    design_motor: Motor 3
+    id: 4
+    center_ticks: 1330
+    min_ticks: 700
+    max_ticks: 3800
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J5:
+    name: left_four_bar_mechanism
+    design_motor: Motor 5
+    id: 5
+    center_ticks: 1330
+    min_ticks: 700
+    max_ticks: 3800
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J6:
+    name: right_four_bar_mechanism
+    design_motor: Motor 7
     id: 6
-    min_tick: 0
-    max_tick: 4095
-    zero_tick: 3630
-    default_speed: 60
+    center_ticks: 1330
+    min_ticks: 700
+    max_ticks: 3800
+    ticks_per_degree: 11.3777777778
+    direction: 1
+
 presets:
-  a:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 3630
-      speed: 60
-    j2_left_axis:
-      tick: 2052
-      speed: 80
-    j5_left_4bar:
-      tick: 3630
-      speed: 60
-    j3_right_axis:
-      tick: 2052
-      speed: 80
-    j6_right_4bar:
-      tick: 3630
-      speed: 60
-    j0_base:
-      tick: 60
-      speed: 80
-  s:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 3630
-      speed: 60
-    j2_left_axis:
-      tick: 2052
-      speed: 80
-    j5_left_4bar:
-      tick: 1330
-      speed: 60
-    j3_right_axis:
-      tick: 2052
-      speed: 80
-    j6_right_4bar:
-      tick: 1330
-      speed: 60
-    j0_base:
-      tick: 60
-      speed: 80
-  d:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 3630
-      speed: 60
-    j2_left_axis:
-      tick: 2002
-      speed: 80
-    j5_left_4bar:
-      tick: 1330
-      speed: 60
-    j3_right_axis:
-      tick: 2102
-      speed: 80
-    j6_right_4bar:
-      tick: 1330
-      speed: 60
-    j0_base:
-      tick: 60
-      speed: 80
-  f:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 3630
-      speed: 60
-    j2_left_axis:
-      tick: 2102
-      speed: 80
-    j5_left_4bar:
-      tick: 1330
-      speed: 60
-    j3_right_axis:
-      tick: 2002
-      speed: 80
-    j6_right_4bar:
-      tick: 1330
-      speed: 60
-    j0_base:
-      tick: 60
-      speed: 80
-  z:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 3630
-      speed: 60
-    j2_left_axis:
-      tick: 2052
-      speed: 80
-    j5_left_4bar:
-      tick: 3630
-      speed: 60
-    j3_right_axis:
-      tick: 2052
-      speed: 80
-    j6_right_4bar:
-      tick: 3630
-      speed: 60
-    j0_base:
-      tick: 1712
-      speed: 80
-  x:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 1330
-      speed: 85
-    j2_left_axis:
-      tick: 2052
-      speed: 80
-    j5_left_4bar:
-      tick: 1330
-      speed: 87
-    j3_right_axis:
-      tick: 2052
-      speed: 80
-    j6_right_4bar:
-      tick: 1330
-      speed: 90
-    j0_base:
-      tick: 1712
-      speed: 80
-  c:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 3630
-      speed: 60
-    j2_left_axis:
-      tick: 2052
-      speed: 80
-    j5_left_4bar:
-      tick: 3630
-      speed: 60
-    j3_right_axis:
-      tick: 2052
-      speed: 80
-    j6_right_4bar:
-      tick: 3630
-      speed: 60
-    j0_base:
-      tick: 3500
-      speed: 80
-  b:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 3630
-      speed: 60
-    j2_left_axis:
-      tick: 2320
-      speed: 80
-    j5_left_4bar:
-      tick: 3630
-      speed: 60
-    j3_right_axis:
-      tick: 1784
-      speed: 80
-    j6_right_4bar:
-      tick: 3630
-      speed: 60
-    j0_base:
-      tick: 3500
-      speed: 80
-  n:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 1130
-      speed: 60
-    j2_left_axis:
-      tick: 2320
-      speed: 80
-    j5_left_4bar:
-      tick: 1130
-      speed: 60
-    j3_right_axis:
-      tick: 1784
-      speed: 80
-    j6_right_4bar:
-      tick: 1130
-      speed: 60
-    j0_base:
-      tick: 3500
-      speed: 80
-  m:
-    j1_center_axis:
-      tick: 2052
-      speed: 80
-    j4_center_4bar:
-      tick: 1130
-      speed: 60
-    j2_left_axis:
-      tick: 2320
-      speed: 80
-    j5_left_4bar:
-      tick: 1130
-      speed: 60
-    j3_right_axis:
-      tick: 1784
-      speed: 80
-    j6_right_4bar:
-      tick: 3630
-      speed: 60
-    j0_base:
-      tick: 3500
-      speed: 80
+  clear_palm_workspace:
+    ticks:
+      J0: 1712
+      J1: 2052
+      J2: 2052
+      J3: 2052
+      J4: 1330
+      J5: 1330
+      J6: 1330
+    speeds:
+      J0: 80
+      J1: 80
+      J2: 80
+      J3: 80
+      J4: 85
+      J5: 87
+      J6: 90
+    jamming: false
+  open_fourbar:
+    ticks:
+      J4: 1330
+      J5: 1330
+      J6: 1330
+    speeds:
+      J4: 85
+      J5: 87
+      J6: 90
+  taught_lock_reference:
+    # Equivalent to legacy command 'u' after translation to current mapping.
+    ticks:
+      J0: 1712
+      J1: 2052
+      J2: 2052
+      J3: 2052
+      J4: 1330
+      J5: 1330
+      J6: 1330
+    speeds:
+      J0: 80
+      J1: 80
+      J2: 80
+      J3: 80
+      J4: 85
+      J5: 87
+      J6: 90
+    jamming: false
