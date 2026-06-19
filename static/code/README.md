@@ -62,9 +62,16 @@ The uploaded old teaching code used the experimental list `[2, 3, 4, 5, 6, 7, 8]
 ## Installation
 
 ```bash
-git clone <your-repo-url> ARTiS_Gripper_API
-cd ARTiS_Gripper_API
-python3 -m pip install -e .
+git clone https://github.com/anonymrobotic/artis.git
+cd artis/static/code/artis_gripper_api
+
+python -m venv venv
+source venv/bin/activate   # Linux
+# or
+venv\Scripts\activate      # Windows
+
+pip install -r requirements.txt
+pip install -e .
 ```
 
 Required Python packages:
@@ -78,11 +85,11 @@ pip install dynamixel-sdk pyserial pyyaml
 ```python
 from artis_gripper import ArtisGripper
 
-with ArtisGripper("configs/artis_default.yaml") as g:
-    g.apply_preset("clear_palm_workspace")
-    g.jam_on()
+with ArtisGripper("configs/artis_default.yaml") as gripper:
+    gripper.open_gripper()
+    gripper.jam_on()
     print(g.read_joint_ticks())
-    g.jam_off()
+    gripper.jam_off()
 ```
 
 ## Teaching mode
@@ -90,7 +97,8 @@ with ArtisGripper("configs/artis_default.yaml") as g:
 Record a manually demonstrated sequence:
 
 ```bash
-python examples/teach_record_cli.py --config configs/artis_default.yaml --name screwdriver_grasp --tool screwdriver
+python examples/teach_record_cli.py --config configs/artis_default.yaml --name screwdriver_grasp
+python examples/playback_sequence.py teaching_sequences/screwdriver_grasp.json --config configs/artis_default.yaml
 ```
 
 Typical teaching sequence:
@@ -166,15 +174,13 @@ source install/setup.bash
 ros2 run artis_gripper_ros2 artis_node --ros-args -p config:=/absolute/path/to/configs/artis_default.yaml
 ```
 
-## Autonomous control role
+## Citation
 
-The teaching mode can be combined with vision and a wrist force-torque sensor. A person demonstrates the tool-specific ARTiS sequence once, and during autonomous playback the robot can:
-
-1. detect the tool using vision,
-2. align the palm with the current tool pose,
-3. press the tool into the jamming palm using force-torque feedback,
-4. replay the taught gripper sequence,
-5. track the tool tip during tool use,
-6. replay the taught release sequence.
-
-This makes ARTiS practical for repeated tool acquisition and robot imitation learning without requiring a fully general grasp planner from the first implementation.
+If you use ARTiS Gripper in research, please cite:
+```bibtex
+@article{2026artisgripper,
+  title={ARTiS: An Adaptive Robotic Gripper for Enhanced Tool Manipulation in Disassembly Applications},
+  author={Mykhailyshyn, Roman and Domae, Yukiyasu and Harada, Kensuke},
+  journal={TASE},
+  year={2026}
+}
