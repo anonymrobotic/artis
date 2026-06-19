@@ -1,0 +1,106 @@
+# Legacy mapping used by U2D2_Arduino_teaching.py and U2D2_Arduino_teaching_button.py.
+# This is kept for reproducing old experiments without changing old motor IDs.
+serial:
+  dynamixel_port: /dev/ttyUSB0
+  dynamixel_baudrate: 57600
+  protocol_version: 1.0
+  arduino_port: /dev/ttyACM0
+  arduino_baudrate: 9600
+
+palm:
+  # The uploaded Arduino_com_teaching_button.ino used the inverted serial convention:
+  # Python sent '1' for relay ON, but firmware drove LOW and printed Relay OFF.
+  # Adjust these two commands to match your actual relay wiring.
+  on_command: "1"
+  off_command: "0"
+
+default_speed: 70
+
+joints:
+  J0:
+    name: base_rotation_about_gripper_axis
+    id: 8
+    center_ticks: 1712
+    min_ticks: 0
+    max_ticks: 4095
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J1:
+    name: center_finger_axis_orientation_legacy
+    id: 2
+    center_ticks: 2052
+    min_ticks: 0
+    max_ticks: 4095
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J2:
+    name: left_finger_axis_orientation_legacy
+    id: 4
+    center_ticks: 2052
+    min_ticks: 0
+    max_ticks: 4095
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J3:
+    name: right_finger_axis_orientation_legacy
+    id: 6
+    center_ticks: 2052
+    min_ticks: 0
+    max_ticks: 4095
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J4:
+    name: center_four_bar_mechanism_legacy
+    id: 3
+    center_ticks: 1330
+    min_ticks: 700
+    max_ticks: 3800
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J5:
+    name: left_four_bar_mechanism_legacy
+    id: 5
+    center_ticks: 1330
+    min_ticks: 700
+    max_ticks: 3800
+    ticks_per_degree: 11.3777777778
+    direction: 1
+  J6:
+    name: right_four_bar_mechanism_legacy
+    id: 7
+    center_ticks: 1330
+    min_ticks: 700
+    max_ticks: 3800
+    ticks_per_degree: 11.3777777778
+    direction: 1
+
+presets:
+  legacy_u:
+    ticks:
+      J1: 2052
+      J4: 1330
+      J2: 2052
+      J5: 1330
+      J3: 2052
+      J6: 1330
+      J0: 1712
+    speeds:
+      J1: 80
+      J4: 85
+      J2: 80
+      J5: 87
+      J3: 80
+      J6: 90
+      J0: 80
+    jamming: false
+  legacy_t_fourbar_close:
+    # Old key 't': keep J1,J2,J3,J0 fixed at current positions, then move J4,J5,J6 to 1000.
+    ticks:
+      J4: 1000
+      J5: 1000
+      J6: 1000
+    speeds:
+      J4: 50
+      J5: 50
+      J6: 50
+    jamming: true
