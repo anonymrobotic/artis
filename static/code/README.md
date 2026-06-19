@@ -180,7 +180,7 @@ If you use ARTiS Gripper in research, please cite:
 ```bibtex
 @article{2026artisgripper,
   title={ARTiS: An Adaptive Robotic Gripper for Enhanced Tool Manipulation in Disassembly Applications},
-  author={Mykhailyshyn, Roman and Domae, Yukiyasu and Harada, Kensuke},
+  author={________},
   journal={TASE},
   year={2026}
 }
